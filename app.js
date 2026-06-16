@@ -1,5 +1,5 @@
-const defaultApiUrl = "";
-let API_URL = "https://staff-research-production.up.railway.app";
+const defaultApiUrl = "https://staff-research-production.up.railway.app";
+let API_URL = localStorage.getItem("ss_api_url") || defaultApiUrl;
 let ADMIN_KEY = localStorage.getItem("ss_admin_key") || "";
 let responses = [];
 
