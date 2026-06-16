@@ -60,11 +60,15 @@ function setView(view) {
   document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
   document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("active"));
 
-  $(`${view}View`).classList.add("active");
-  document.querySelector(`[data-view="${view}"]`).classList.add("active");
+  const viewEl = $(`${view}View`);
+  const btnEl = document.querySelector(`[data-view="${view}"]`);
+
+  if (viewEl) viewEl.classList.add("active");
+  if (btnEl) btnEl.classList.add("active");
 
   const titles = {
     dashboard: "Dashboard",
+    analytics: "Analytics",
     entry: "New Entry",
     scripts: "Question Scripts",
     representatives: "Representatives",
@@ -72,6 +76,8 @@ function setView(view) {
   };
 
   $("pageTitle").textContent = titles[view] || "Dashboard";
+
+  if (view === "analytics") renderAnalytics();
 }
 
 function escapeHtml(str) {
@@ -103,7 +109,6 @@ function getActiveRepNames() {
 
 function populateRepDropdowns() {
   const names = getActiveRepNames();
-
   const options = names.map(name => `<option>${escapeHtml(name)}</option>`).join("");
 
   $("repSelect").innerHTML = options || `<option>Caliber</option>`;
@@ -138,6 +143,7 @@ async function loadAll() {
 
   populateRepDropdowns();
   renderDashboard();
+  renderAnalytics();
   renderScripts();
   renderReps();
 }
@@ -178,7 +184,11 @@ function renderDashboard() {
   const categoryFilter = $("categoryFilter");
   const currentCategory = categoryFilter.value;
   const uniqueCats = [...new Set(responses.map(r => r.category).filter(Boolean))].sort();
-  categoryFilter.innerHTML = `<option value="">All Categories</option>` + uniqueCats.map(c => `<option>${escapeHtml(c)}</option>`).join("");
+
+  categoryFilter.innerHTML =
+    `<option value="">All Categories</option>` +
+    uniqueCats.map(c => `<option>${escapeHtml(c)}</option>`).join("");
+
   categoryFilter.value = currentCategory;
 
   $("responsesBody").innerHTML = filtered.map(r => `
@@ -200,6 +210,67 @@ function renderDashboard() {
       </td>
     </tr>
   `).join("") || `<tr><td colspan="9">No responses yet.</td></tr>`;
+}
+
+function countBy(key) {
+  const data = {};
+
+  responses.forEach(r => {
+    const value = r[key] || "Unknown";
+    data[value] = (data[value] || 0) + 1;
+  });
+
+  return data;
+}
+
+function renderBarChart(elementId, data) {
+  const el = $(elementId);
+  const entries = Object.entries(data || {}).sort((a, b) => b[1] - a[1]);
+  const max = Math.max(...entries.map(([, value]) => value), 1);
+
+  if (!entries.length) {
+    el.innerHTML = `<p class="empty-state">No data yet.</p>`;
+    return;
+  }
+
+  el.innerHTML = entries.map(([label, value]) => {
+    const width = Math.max((value / max) * 100, 5);
+
+    return `
+      <div class="bar-row">
+        <div class="bar-row-top">
+          <span>${escapeHtml(label)}</span>
+          <strong>${value}</strong>
+        </div>
+        <div class="bar-track">
+          <div class="bar-fill" style="width:${width}%"></div>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+function renderAnalytics() {
+  const painNumbers = responses.map(r => Number(r.pain)).filter(Boolean);
+  const avgPain = painNumbers.length
+    ? (painNumbers.reduce((a, b) => a + b, 0) / painNumbers.length).toFixed(1)
+    : "0";
+
+  const categoryCounts = countBy("category");
+  const payCounts = countBy("wouldPay");
+  const repCounts = countBy("representative");
+  const frequencyCounts = countBy("frequency");
+
+  $("analyticsTotal").textContent = responses.length;
+  $("analyticsAvgPain").textContent = avgPain;
+  $("analyticsPayYes").textContent = responses.filter(r => r.wouldPay === "Yes").length;
+  $("analyticsTopCategory").textContent =
+    Object.entries(categoryCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || "-";
+
+  renderBarChart("categoryChart", categoryCounts);
+  renderBarChart("payChart", payCounts);
+  renderBarChart("repChart", repCounts);
+  renderBarChart("frequencyChart", frequencyCounts);
 }
 
 function openDetails(id) {
@@ -265,7 +336,10 @@ async function deleteResponse(id) {
   if (!confirm("Delete this response? This cannot be undone.")) return;
 
   try {
-    await api(`/api/responses/${id}`, { method: "DELETE" });
+    await api(`/api/responses/${id}`, {
+      method: "DELETE"
+    });
+
     $("detailModal").classList.remove("active");
     await loadAll();
   } catch (err) {
@@ -335,8 +409,8 @@ function renderScripts() {
       </label>
 
       <div class="form-actions">
-        <button class="btn ghost" onclick="copyScript(${index})">Copy</button>
-        <button class="btn" onclick="saveScript(${index})">Save</button>
+        <button class="btn ghost" type="button" onclick="copyScript(${index})">Copy</button>
+        <button class="btn" type="button" onclick="saveScript(${index})">Save</button>
       </div>
     </article>
   `).join("");
@@ -349,6 +423,7 @@ function copyScript(index) {
 
 async function saveScript(index) {
   const rep = $("scriptRep").value;
+
   const body = {
     rep,
     order: index + 1,
@@ -398,14 +473,17 @@ function renderReps() {
         <button class="action-link danger-link" onclick="deleteRep('${r._id || r.name}')">Delete</button>
       </td>
     </tr>
-  `).join("");
+  `).join("") || `<tr><td colspan="5">No representatives yet.</td></tr>`;
 }
 
 async function deleteRep(id) {
   if (!confirm("Delete this representative?")) return;
 
   try {
-    await api(`/api/representatives/${id}`, { method: "DELETE" });
+    await api(`/api/representatives/${encodeURIComponent(id)}`, {
+      method: "DELETE"
+    });
+
     await loadAll();
   } catch (err) {
     alert("Could not delete representative: " + err.message);
@@ -449,11 +527,17 @@ function exportCsv() {
     r.source
   ]));
 
-  const csv = rows.map(row => row.map(v => `"${String(v ?? "").replace(/"/g, '""')}"`).join(",")).join("\n");
-  const blob = new Blob([csv], { type: "text/csv" });
-  const url = URL.createObjectURL(blob);
+  const csv = rows
+    .map(row => row.map(v => `"${String(v ?? "").replace(/"/g, '""')}"`).join(","))
+    .join("\n");
 
+  const blob = new Blob([csv], {
+    type: "text/csv"
+  });
+
+  const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
+
   a.href = url;
   a.download = "community-research-responses.csv";
   a.click();
@@ -474,6 +558,7 @@ $("scriptRep").addEventListener("change", renderScripts);
 $("resetScriptsBtn").addEventListener("click", resetScripts);
 
 $("closeModal").addEventListener("click", () => $("detailModal").classList.remove("active"));
+
 $("detailModal").addEventListener("click", e => {
   if (e.target.id === "detailModal") $("detailModal").classList.remove("active");
 });
@@ -495,6 +580,7 @@ $("responseForm").addEventListener("submit", async (e) => {
 
   const form = new FormData(e.target);
   const body = Object.fromEntries(form.entries());
+
   body.pain = Number(body.pain);
 
   try {
@@ -516,6 +602,7 @@ $("repForm").addEventListener("submit", async (e) => {
 
   const form = new FormData(e.target);
   const body = Object.fromEntries(form.entries());
+
   body.active = body.active === "true";
 
   try {
