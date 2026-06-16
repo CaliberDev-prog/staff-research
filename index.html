@@ -3,7 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <title>Staff Sanctuary Research Dashboard</title>
+
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
@@ -21,6 +23,7 @@
         <button class="nav-btn active" data-view="dashboard">Dashboard</button>
         <button class="nav-btn" data-view="entry">New Entry</button>
         <button class="nav-btn" data-view="scripts">Question Scripts</button>
+        <button class="nav-btn" data-view="representatives">Representatives</button>
         <button class="nav-btn" data-view="settings">Settings</button>
       </nav>
 
@@ -37,6 +40,7 @@
           <p class="eyebrow">Research Operations</p>
           <h2 id="pageTitle">Dashboard</h2>
         </div>
+
         <div class="top-actions">
           <button class="btn ghost" id="refreshBtn">Refresh</button>
           <button class="btn" id="exportCsvBtn">Export CSV</button>
@@ -45,31 +49,66 @@
 
       <section class="view active" id="dashboardView">
         <div class="stats-grid">
-          <article class="stat-card"><span>Total Responses</span><strong id="totalResponses">0</strong></article>
-          <article class="stat-card"><span>Avg Pain</span><strong id="avgPain">0</strong></article>
-          <article class="stat-card"><span>Would Pay</span><strong id="payYes">0</strong></article>
-          <article class="stat-card"><span>Top Category</span><strong id="topCategory">-</strong></article>
+          <article class="stat-card">
+            <span>Total Responses</span>
+            <strong id="totalResponses">0</strong>
+          </article>
+
+          <article class="stat-card">
+            <span>Avg Pain</span>
+            <strong id="avgPain">0</strong>
+          </article>
+
+          <article class="stat-card">
+            <span>Would Pay</span>
+            <strong id="payYes">0</strong>
+          </article>
+
+          <article class="stat-card">
+            <span>Top Category</span>
+            <strong id="topCategory">-</strong>
+          </article>
         </div>
 
         <div class="panel">
           <div class="panel-header">
             <div>
               <h3>Responses</h3>
-              <p>Filter and review all shared research entries.</p>
+              <p>Filter, review, delete, and manage all shared research entries.</p>
             </div>
+
             <div class="filters">
               <input id="searchInput" placeholder="Search server, owner, problem..." />
-              <select id="categoryFilter"><option value="">All Categories</option></select>
-              <select id="payFilter"><option value="">Would Pay?</option><option>Yes</option><option>Maybe</option><option>No</option></select>
+
+              <select id="categoryFilter">
+                <option value="">All Categories</option>
+              </select>
+
+              <select id="payFilter">
+                <option value="">Would Pay?</option>
+                <option>Yes</option>
+                <option>Maybe</option>
+                <option>No</option>
+              </select>
             </div>
           </div>
+
           <div class="table-wrap">
             <table>
               <thead>
                 <tr>
-                  <th>Date</th><th>Rep</th><th>Server</th><th>Owner</th><th>Category</th><th>Pain</th><th>Would Pay</th><th>Problem</th><th></th>
+                  <th>Date</th>
+                  <th>Rep</th>
+                  <th>Server</th>
+                  <th>Owner</th>
+                  <th>Category</th>
+                  <th>Pain</th>
+                  <th>Would Pay</th>
+                  <th>Problem</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
+
               <tbody id="responsesBody"></tbody>
             </table>
           </div>
@@ -85,34 +124,90 @@
             </div>
           </div>
 
-          <label>Representative
-            <select name="representative" id="repSelect"><option>Caliber</option><option>Kai</option><option>Logan</option></select>
+          <label>
+            Representative
+            <select name="representative" id="repSelect" required></select>
           </label>
-          <label>Server Name <input name="server" required placeholder="Sparkle SMP" /></label>
-          <label>Owner / Contact <input name="owner" required placeholder="Owner / Discord username" /></label>
-          <label>Category
+
+          <label>
+            Server Name
+            <input name="server" required placeholder="Sparkle SMP" />
+          </label>
+
+          <label>
+            Owner / Contact
+            <input name="owner" required placeholder="Owner / Discord username" />
+          </label>
+
+          <label>
+            Discord Invite
+            <input name="discordInvite" placeholder="https://discord.gg/example" />
+          </label>
+
+          <label>
+            Category
             <select name="category" required>
-              <option>Staff Recruitment</option><option>Player Retention</option><option>Moderation</option><option>Discord Setup</option><option>Development</option><option>Community Management</option><option>Other</option>
+              <option>Staff Recruitment</option>
+              <option>Player Retention</option>
+              <option>Moderation</option>
+              <option>Discord Setup</option>
+              <option>Development</option>
+              <option>Community Management</option>
+              <option>Other</option>
             </select>
           </label>
-          <label class="span-2">Biggest Challenge / Problem
+
+          <label>
+            Problem Frequency
+            <select name="frequency">
+              <option>Daily</option>
+              <option>Weekly</option>
+              <option>Occasionally</option>
+              <option>Unknown</option>
+            </select>
+          </label>
+
+          <label class="span-2">
+            Biggest Challenge / Problem
             <textarea name="problem" required placeholder="What are they struggling with besides getting members?"></textarea>
           </label>
-          <label class="span-2">What Have They Tried?
+
+          <label class="span-2">
+            What Have They Tried?
             <textarea name="tried" placeholder="Tools, staff changes, bots, manual work, etc."></textarea>
           </label>
-          <label>Time Spent Weekly <input name="timeSpent" placeholder="Example: 5 hours/week" /></label>
-          <label>Would Pay?
-            <select name="wouldPay"><option>Maybe</option><option>Yes</option><option>No</option></select>
+
+          <label>
+            Time Spent Weekly
+            <input name="timeSpent" placeholder="Example: 5 hours/week" />
           </label>
-          <label>Problem Frequency
-            <select name="frequency"><option>Daily</option><option>Weekly</option><option>Occasionally</option><option>Unknown</option></select>
+
+          <label>
+            Would Pay?
+            <select name="wouldPay">
+              <option>Maybe</option>
+              <option>Yes</option>
+              <option>No</option>
+            </select>
           </label>
-          <label>Pain Level 1-10 <input name="pain" type="number" min="1" max="10" required /></label>
-          <label class="span-2">Most Frustrating Part
+
+          <label>
+            Pain Level 1-10
+            <input name="pain" type="number" min="1" max="10" required />
+          </label>
+
+          <label>
+            Source / Notes Tag
+            <input name="source" placeholder="Example: DM, Discord server, ticket, survey" />
+          </label>
+
+          <label class="span-2">
+            Most Frustrating Part
             <textarea name="frustrating" placeholder="What annoys them the most about this problem?"></textarea>
           </label>
-          <label class="span-2">Idea / Notes
+
+          <label class="span-2">
+            Idea / Notes
             <textarea name="idea" placeholder="Potential solution, quote, or product idea."></textarea>
           </label>
 
@@ -128,22 +223,101 @@
           <div class="panel-header">
             <div>
               <h3>Representative Question Scripts</h3>
-              <p>Select a representative and copy each question stage.</p>
+              <p>Select a representative, edit scripts, and copy each question stage.</p>
             </div>
-            <select id="scriptRep"><option>Caliber</option><option>Kai</option><option>Logan</option></select>
+
+            <div class="filters">
+              <select id="scriptRep"></select>
+              <button class="btn ghost" id="resetScriptsBtn">Reset Default Scripts</button>
+            </div>
           </div>
+
           <div id="scriptCards" class="script-grid"></div>
+        </div>
+      </section>
+
+      <section class="view" id="representativesView">
+        <div class="panel">
+          <div class="panel-header">
+            <div>
+              <h3>Representatives</h3>
+              <p>Add and manage people collecting research responses.</p>
+            </div>
+          </div>
+
+          <form id="repForm" class="form-grid compact-form">
+            <label>
+              Representative Name
+              <input name="name" required placeholder="Caliber" />
+            </label>
+
+            <label>
+              Discord Username
+              <input name="discord" placeholder="x_caliber41" />
+            </label>
+
+            <label>
+              Role
+              <input name="role" placeholder="Founder, Manager, Researcher" />
+            </label>
+
+            <label>
+              Status
+              <select name="active">
+                <option value="true">Active</option>
+                <option value="false">Inactive</option>
+              </select>
+            </label>
+
+            <div class="form-actions span-2">
+              <button class="btn" type="submit">Add Representative</button>
+            </div>
+          </form>
+
+          <div class="table-wrap reps-table">
+            <table>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Discord</th>
+                  <th>Role</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+
+              <tbody id="repsBody"></tbody>
+            </table>
+          </div>
         </div>
       </section>
 
       <section class="view" id="settingsView">
         <div class="panel settings-panel">
           <h3>Backend Settings</h3>
-          <p>For shared storage, paste your deployed backend API URL below. Example: <code>https://your-api.onrender.com</code></p>
-          <label>API URL <input id="apiUrlInput" placeholder="https://your-backend-url.com" /></label>
-          <label>Admin Key, optional <input id="adminKeyInput" placeholder="Only needed for protected actions" /></label>
-          <div class="form-actions"><button class="btn" id="saveSettingsBtn">Save Settings</button></div>
-          <p class="muted">This site can be hosted on GitHub Pages. Data is shared through the backend API + MongoDB.</p>
+
+          <p>
+            For shared storage, paste your deployed backend API URL below.
+            Example: <code>https://staff-research-production.up.railway.app</code>
+          </p>
+
+          <label>
+            API URL
+            <input id="apiUrlInput" placeholder="https://your-backend-url.com" />
+          </label>
+
+          <label>
+            Admin Key, optional
+            <input id="adminKeyInput" placeholder="Only needed for protected actions" />
+          </label>
+
+          <div class="form-actions">
+            <button class="btn" id="saveSettingsBtn">Save Settings</button>
+          </div>
+
+          <p class="muted">
+            This site can be hosted on GitHub Pages. Data is shared through the backend API + MongoDB.
+          </p>
         </div>
       </section>
     </main>
