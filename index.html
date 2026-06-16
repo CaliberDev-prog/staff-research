@@ -3,11 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
   <title>Staff Sanctuary Research Dashboard</title>
-
   <link rel="stylesheet" href="styles.css" />
 </head>
+
 <body>
   <div class="app-shell">
     <aside class="sidebar">
@@ -21,6 +20,7 @@
 
       <nav class="nav">
         <button class="nav-btn active" data-view="dashboard">Dashboard</button>
+        <button class="nav-btn" data-view="analytics">Analytics</button>
         <button class="nav-btn" data-view="entry">New Entry</button>
         <button class="nav-btn" data-view="scripts">Question Scripts</button>
         <button class="nav-btn" data-view="representatives">Representatives</button>
@@ -47,6 +47,7 @@
         </div>
       </header>
 
+      <!-- DASHBOARD -->
       <section class="view active" id="dashboardView">
         <div class="stats-grid">
           <article class="stat-card">
@@ -108,13 +109,80 @@
                   <th>Actions</th>
                 </tr>
               </thead>
-
               <tbody id="responsesBody"></tbody>
             </table>
           </div>
         </div>
       </section>
 
+      <!-- ANALYTICS -->
+      <section class="view" id="analyticsView">
+        <div class="stats-grid">
+          <article class="stat-card">
+            <span>Total Responses</span>
+            <strong id="analyticsTotal">0</strong>
+          </article>
+
+          <article class="stat-card">
+            <span>Average Pain</span>
+            <strong id="analyticsAvgPain">0</strong>
+          </article>
+
+          <article class="stat-card">
+            <span>Strong Buyers</span>
+            <strong id="analyticsPayYes">0</strong>
+          </article>
+
+          <article class="stat-card">
+            <span>Top Problem Area</span>
+            <strong id="analyticsTopCategory">-</strong>
+          </article>
+        </div>
+
+        <div class="analytics-grid">
+          <section class="panel">
+            <div class="panel-header compact">
+              <div>
+                <h3>Problem Categories</h3>
+                <p>Most common issue areas.</p>
+              </div>
+            </div>
+            <div id="categoryChart" class="bar-list"></div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header compact">
+              <div>
+                <h3>Would Pay Breakdown</h3>
+                <p>Buying intent from owners and managers.</p>
+              </div>
+            </div>
+            <div id="payChart" class="bar-list"></div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header compact">
+              <div>
+                <h3>Representatives</h3>
+                <p>Responses collected by each rep.</p>
+              </div>
+            </div>
+            <div id="repChart" class="bar-list"></div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header compact">
+              <div>
+                <h3>Problem Frequency</h3>
+                <p>How often owners deal with the issue.</p>
+              </div>
+            </div>
+            <div id="frequencyChart" class="bar-list"></div>
+          </section>
+        </div>
+      </section>
+
+      <!-- NEW ENTRY -->
       <section class="view" id="entryView">
         <form class="panel form-grid" id="responseForm">
           <div class="panel-header span-2">
@@ -218,6 +286,7 @@
         </form>
       </section>
 
+      <!-- SCRIPTS -->
       <section class="view" id="scriptsView">
         <div class="panel scripts-panel">
           <div class="panel-header">
@@ -236,6 +305,7 @@
         </div>
       </section>
 
+      <!-- REPRESENTATIVES -->
       <section class="view" id="representativesView">
         <div class="panel">
           <div class="panel-header">
@@ -285,13 +355,13 @@
                   <th>Actions</th>
                 </tr>
               </thead>
-
               <tbody id="repsBody"></tbody>
             </table>
           </div>
         </div>
       </section>
 
+      <!-- SETTINGS -->
       <section class="view" id="settingsView">
         <div class="panel settings-panel">
           <h3>Backend Settings</h3>
